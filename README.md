@@ -1,131 +1,144 @@
+---
+title: ace-windowのREADME
+tags:
+  - Emacs
+  - ace-window
+private: true
+updated_at: '2025-01-01T16:56:55+09:00'
+id: e914530f99058dcbe4b2
+organization_url_name: null
+slide: false
+ignorePublish: false
+---
+
+- ace-window0.9.0のREADMEの日本語訳です
+
+- 元の文書: [https://github.com/abo-abo/ace-window/commit/0577c426a9833ab107bab46c60d1885c611b2fb9](https://github.com/abo-abo/ace-window/commit/0577c426a9833ab107bab46c60d1885c611b2fb9)
+
+- ライセンス: GNU Emacsの一部なのでGNU Emacsと同じです
+
+- - -
+
 # ace-window
 
 [![GNU ELPA](https://elpa.gnu.org/packages/ace-window.svg)](https://elpa.gnu.org/packages/ace-window.html)
 [![MELPA](https://melpa.org/packages/ace-window-badge.svg)](https://melpa.org/#/ace-window)
 [![MELPA Stable](https://stable.melpa.org/packages/ace-window-badge.svg)](https://stable.melpa.org/#/ace-window)
 
-**GNU Emacs package for selecting a window to switch to**
+**切り替え先ウィンドウ選択のためのGNU Emacs向けパッケージ**
 
-## What and why
+- - -
 
-I'm sure you're aware of the `other-window` command.  While it's great
-for two windows, it quickly loses its value when there are more windows.
-You need to call it many times, and since it's not easily predictable,
-you have to check each time if you're in the window that you wanted.
+* [ace-window](#ace-window)
+   * [何をどうする](#何をどうする)
+   * [セットアップ](#セットアップ)
+   * [使い方](#使い方)
+   * [ウィンドウの入れ替えと削除](#ウィンドウの入れ替えと削除)
+   * [アクションの途中変更](#アクションの途中変更)
+   * [カスタマイゼーション](#カスタマイゼーション)
+      * [aw-keys](#aw-keys)
+      * [aw-scope](#aw-scope)
+      * [aw-background](#aw-background)
+      * [aw-dispatch-always](#aw-dispatch-always)
+      * [aw-dispatch-alist](#aw-dispatch-alist)
+      * [aw-minibuffer-flag](#aw-minibuffer-flag)
+      * [aw-ignored-buffers](#aw-ignored-buffers)
+      * [aw-ignore-on](#aw-ignore-on)
+      * [aw-ignore-current](#aw-ignore-current)
+      
+- - -
 
-Another approach is to use `windmove-left`, `windmove-up`, etc.  These
-are fast and predictable.  Their disadvantage is that they need 4 key
-bindings.  The default ones are shift+arrows, which are hard to reach.
+## 何をどうする
 
-This package aims to take the speed and predictability of `windmove`
-and pack it into a single key binding, similar to `other-window`.
+`other-window`コマンドは知っている筈だ。これはウィンドウ2つまでなら素晴らしいがウィンドウの数が増えてくると急速に価値を失っていく。何回も呼び出さねばならず、簡単には予測できないので、お目当てのウィンドウに到達したかを毎回チェックしなければならない。
 
-## Setup
+`windmove-left``windmove-up`等を使うという別のアプローチもある。これらのコマンドは高速だし予測可能だ。欠点はキーバインディングが4つ必要なことだ。キーバインディングの1つにshift+arrowsがあるが、指が届かない。
 
-Just assign `ace-window` to a short key binding, as switching windows
-is a common task.  I suggest <kbd>M-o</kbd>, as it's short and not
-bound to anything important in the default Emacs.
+これは`windmove`のスピードと予測可能な点はそのままに、`other-window`のように単一のキーバインディングにパックするためのパッケージだ。
 
-## Usage
+## セットアップ
 
-When there are two windows, `ace-window` will call `other-window`
-(unless `aw-dispatch-always` is set non-nil).  If there are more, each
-window will have the first character of its window label highlighted
-at the upper left of the window.  Pressing that character will either
-switch to that window or filter to the next character needed to select
-a specific window.  Note that, unlike `ace-jump-mode`, the position of
-point will not be changed, i.e. the same behavior as that of
-`other-window`.
+ウィンドウ切り替えは頻繁に行うタスクなので、`ace-window`を短いキーバインディングに割り当てるだけ。<kbd>M-o</kbd>はデフォルトのEmacsでは重要な何かにバインドされている訳ではないのでお勧め。
 
-A special character defined by `aw-make-frame-char` (default = `z`)
-means create a new frame and use its window as the target.  The new
-frame's location is set relative to the prior selected frame's location
-and given by `aw-frame-offset`.  The new frame's size is given by
-`aw-frame-size`.  See their documentation strings for more information.
+## 使い方
 
-The windows are ordered top-down, left-to-right. This means that if you
-remember your window layouts, you can switch windows without even
-looking at the leading char.  For instance, the top left window will
-always be `1` (or `a` if you use letters for window characters).
+`ace-window`はウィンドウが2つあれば`other-window`を呼び出す(`aw-dispatch-always`が非nilの場合を除く)。もっとある場合にはウィンドウそれぞれにたいして、左上隅にハイライトされたウィンドウラベルの最初の1文字が与えられる。その文字を押下すればそのウィンドウに切り替わるか、特定のウィンドウの選択するために次の文字絞り込む。`ace-jump-mode`と異なりポイント位置は変更されない(`other-window`と同じ挙動)。
 
-`ace-window` works across multiple frames, as you can see from the
-[in-action gif](http://oremacs.com/download/ace-window.gif).
+`aw-make-frame-char`が定義するスペシャル文字(デフォルトは`z`)は新たにフレームを作成して、そのフレームのウィンドウをターゲットとすることを意味する。新たなフレームの位置は`aw-frame-offset`によって与えられる、その前に選択されていたフレームから相対的な位置にセットされる。新たなフレームのサイズは`aw-frame-size`であ与えられる。詳細についてはドキュメント文字列を参照のこと。
+
+ウィンドウの順序は上から下、左から右となる。これはウィンドウレイアウトを覚えておけば、標識文字を見ずにウィンドウが切り替えられることを意味する。たとえば左上隅のウィンドウは常に`1`(ウィンドウ文字にアルファベットを使用している場合には`a`。
+
+![in-action gif](http://oremacs.com/download/ace-window.gif)
+
+上記イメージのように、`ace-window`は複数のフレームを跨いで機能する。
 
 
-## Swap and delete window
+## ウィンドウの入れ替えと削除
 
-- You can swap windows by calling `ace-window` with a prefix argument <kbd>C-u</kbd>.
+- プレフィックス引数<kbd>C-u</kbd>とともに`ace-window`を呼び出すとウィンドウを入れ替える(swap)
 
-- You can delete the selected window by calling `ace-window` with a double prefix argument, i.e. <kbd>C-u C-u</kbd>.
+- 2連プレフィックス引数<kbd>C-u C-u</kbd>とともに`ace-window`を呼び出すと、選択されたウィンドウを削除できる(delete)
 
-## Change the action midway
+## アクションの途中変更
 
-You can also start by calling `ace-window` and then decide to switch the action to `delete` or `swap` etc.  By default the bindings are:
+`ace-window`を呼び出して開始した後にアクションを`delete`や`swap`等に切り替えるといったことも可能、デフォルトのバインディングは以下の通り:
 
-- <kbd>x</kbd> - delete window
-- <kbd>m</kbd> - swap windows
-- <kbd>M</kbd> - move window
-- <kbd>c</kbd> - copy window
-- <kbd>j</kbd> - select buffer
-- <kbd>n</kbd> - select the previous window
-- <kbd>u</kbd> - select buffer in the other window
-- <kbd>c</kbd> - split window fairly, either vertically or horizontally
-- <kbd>v</kbd> - split window vertically
-- <kbd>b</kbd> - split window horizontally
-- <kbd>o</kbd> - maximize current window
-- <kbd>?</kbd> - show these command bindings
+- <kbd>x</kbd> - ウィンドウの削除(delete)
+- <kbd>m</kbd> - ウィンドウの入れ替え(swap)
+- <kbd>M</kbd> - ウィンドウの移動(move)
+- <kbd>c</kbd> - ウィンドウのコピー(copy)
+- <kbd>j</kbd> - バッファーの選択(select)
+- <kbd>n</kbd> - 前(previous)のウィンドウを選択
+- <kbd>u</kbd> - 他(other)のウィンドウでバッファーを選択
+- <kbd>c</kbd> - 垂直(vertically)あるいは水平(horizontally)にウィンドウを等分に分割(split)
+- <kbd>v</kbd> - ウィンドウを垂直に分割
+- <kbd>b</kbd> - ウィンドウを水平に分割
+- <kbd>o</kbd> - カレントウィンドウを最大化
+- <kbd>?</kbd> - これらのバインディングの表示
 
-For proper operation, these keys *must not* be in `aw-keys`.  Additionally,
-if you want these keys to work with fewer than three windows, you need to
-have `aw-dispatch-always` set to `t`.
+正しく操作を行うために、これらのキーを`aw-keys`に*含めてはならない*。更に2つ以下のウィンドウでこれらのキーを機能させたい場合には、`aw-dispatch-always`に`t`をセットする必要がある。
 
-## Customization
-Aside from binding `ace-window`:
+## カスタマイゼーション
+`ace-window`のバインディング以外では:
 
+```lisp
     (global-set-key (kbd "M-o") 'ace-window)
+```
 
-the following customizations are available:
+以下のカスタマイゼーションが利用できる:
 
-### `aw-keys`
-`aw-keys` - the list of initial characters used in window labels:
+### aw-keys
+`aw-keys` - ウィンドウラベルに使用するイニシャル文字のリスト:
 
+```lisp
     (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+```
 
-`aw-keys` are 0-9 by default, which is reasonable, but in the setup
-above, the keys are on the home row.
+`aw-keys`のデフォルトは0から9であり、これはこれで理に適ったデフォルトではあるが、上記ではキーをホームポジションにセットアップしている。
 
-### `aw-scope`
-The default one is `global`, which means that `ace-window` will work
-across frames.  If you set this to `frame`, `ace-window` will offer you
-only the windows of the current frame.
+### aw-scope
+デフォルトは`global`(`ace-window`はフレームを跨いで機能する)。`frame`にセットすれば`ace-window`はカレントフレームのウィンドウだけを提案する。
 
-### `aw-background`
+### aw-background
 
-By default, `ace-window` temporarily sets a gray background and
-removes color from available windows in order to make the
-window-switching characters more visible.  This is the behavior
-inherited from `ace-jump-mode`.
+ウィンドウ切り替え文字の視認性を高めるために、デフォルトでは`ace-window`は利用可能なウィンドウのバックグラウンドカラーを除去して一時的にグレーにセットする。この挙動は`ace-jump-mode`から継承している。
 
-This behavior might not be necessary, as you already know the locations
-where to look, i.e. the top-left corners of each window.
-So you can turn off the gray background with:
+見るべき位置(ウィンドウのそれぞれ左上隅)が既に判っていれば、この挙動は不要かもしれない。グレーのバックグラウンドは以下でオフに切り替えられる:
 
+```lisp
     (setq aw-background nil)
+```
 
-### `aw-dispatch-always`
+### aw-dispatch-always
 
-When non-nil, `ace-window` will issue a `read-char` even for one window.
-This will make `ace-window` act differently from `other-window` for one
-or two windows.  This is useful to change the action midway and execute
-an action other than the default *jump* action.
-By default, this is set to `nil`.
+非nilならたとえウィンドウが1つでも`ace-window`は`read-char`を割り当てる。これによりウィンドウが1つ、あるいは2つの際の`ace-window`と`other-window`の動作に差異が生じるだろう。これはアクションを途中で変更して、デフォルトの*ジャンプ*とは異なる他のアクションを実行する場合に役に立つ。デフォルトでは`nil`。
 
-### `aw-dispatch-alist`
+### aw-dispatch-alist
 
-This is the list of actions you can trigger from `ace-window` other than the
-*jump* default.  By default it is:
+`ace-window`からデフォルトの*ジャンプ*以外にトリガーできるアクションのリスト。デフォルトは以下の通り:
 
-	(defvar aw-dispatch-alist
+```lisp
+        (defvar aw-dispatch-alist
 	  '((?x aw-delete-window "Delete Window")
 		(?m aw-swap-window "Swap Windows")
 		(?M aw-move-window "Move Window")
@@ -139,31 +152,22 @@ This is the list of actions you can trigger from `ace-window` other than the
 		(?o delete-other-windows "Delete Other Windows")
 		(?? aw-show-dispatch-help))
 	  "List of actions for `aw-dispatch-default'.")
+```
 
-When using ace-window, if the action character is followed by a string,
-then `ace-window` will be invoked again to select the target window for
-the action.  Otherwise, the current window is selected.
+ace-windowを使用する際にアクション文字の後に文字列が続いていれば、そのアクションのターゲットとなるウィンドウ選択のために`ace-window`が再度呼び出される。文字列が続いていなければ、カレントウィンドウが選択される。
 
-### `aw-minibuffer-flag`
+### aw-minibuffer-flag
 
-When non-nil, also display `ace-window-mode` string in the minibuffer
-when `ace-window` is active.  This is useful when there are many
-side-by-side windows and the `ace-window-mode` string is cutoff in the
-minor mode area of the modeline.
+非nilなら`ace-window`がアクティブの際に、ミニバッファーにも文字列`ace-window-mode`を表示する。横並びのウィンドウの数が多いために、モードラインのマイナーモードエリアの文字列`ace-window-mode`が切り捨てられているときに役に立つ。
 
-### `aw-ignored-buffers`
+### aw-ignored-buffers
 
-List of buffers and major-modes to ignore when choosing a window from
-the window list.  Active only when `aw-ignore-on` is non-nil.  Windows
-displaying these buffers can still be chosen by typing their specific
-labels.
+ウィンドウリストからウィンドウを選択する際に無視すべき、バッファーおよびメジャーモードのリスト。`aw-ignore-on`が非nilの場合のみアクティブ。しかしウィンドウを識別する固有のラベルをタイプすれば、それらのバッファーを表示するウィンドウでも依然として選択できる。
 
-### `aw-ignore-on`
+### aw-ignore-on
 
-When t, `ace-window` will ignore buffers and major-modes in
-`aw-ignored-buffers`.  Use M-0 `ace-window` to toggle this value.
-  :type 'boolean)
+tなら`ace-window`は`aw-ignored-buffers`で指定されているバッファーとメジャーモードを無視する。この値を切り替えるには`M-0 ace-window`を使用する。
 
-### `aw-ignore-current`
+### aw-ignore-current
 
-When t, `ace-window` will ignore `selected-window'.
+tなら`ace-window`は`selected-window'のリターン値を無視する。

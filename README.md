@@ -170,4 +170,4 @@ tなら`ace-window`は`aw-ignored-buffers`で指定されているバッファ�
 
 ### aw-ignore-current
 
-tなら`ace-window`は`selected-window'のリターン値を無視する。
+tなら`ace-window`は`selected-window`のリターン値を無視する。

@@ -11,7 +11,7 @@ slide: false
 ignorePublish: false
 ---
 
-- ace-window0.9.0のREADMEの日本語訳です
+- ace-windowの0.10.0のREADMEの日本語訳です
 
 - 元の文書: [https://github.com/abo-abo/ace-window/commit/0577c426a9833ab107bab46c60d1885c611b2fb9](https://github.com/abo-abo/ace-window/commit/0577c426a9833ab107bab46c60d1885c611b2fb9)
 
